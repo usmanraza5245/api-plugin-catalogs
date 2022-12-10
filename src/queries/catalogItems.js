@@ -13,7 +13,7 @@ import ReactionError from "@reactioncommerce/reaction-error";
  * @param {String[]} [params.tags] - Tag IDs to include (OR)
  * @returns {Promise<MongoCursor>} - A MongoDB cursor for the proper query
  */
-export default async function catalogItems(context, { searchQuery, shopIds, tagIds, catalogBooleanFilters } = {}) {
+export default async function catalogItems(context, { searchQuery, shopIds, flag, tagIds, catalogBooleanFilters } = {}) {
   const { collections } = context;
   const { Catalog } = collections;
 
@@ -21,20 +21,49 @@ export default async function catalogItems(context, { searchQuery, shopIds, tagI
     throw new ReactionError("invalid-param", "You must provide tagIds or shopIds or both");
   }
 
-  const query = {
-    "product.isDeleted": { $ne: true },
-    ...catalogBooleanFilters,
-    "product.isVisible": true
-  };
-
-  if (shopIds) query.shopId = { $in: shopIds };
-  if (tagIds) query["product.tagIds"] = { $in: tagIds };
-
-  if (searchQuery) {
-    query.$text = {
-      $search: _.escapeRegExp(searchQuery)
+  // if we send filter option from frontend
+  if( flag ){
+    console.log("queries without flag", catalogBooleanFilters)
+    let query = {
+      "product.isDeleted": { $ne: true },
+      ...catalogBooleanFilters,
+      "product.isVisible": true,
+      "product.metafields.value": flag ? flag : ''
     };
+  
+    if (shopIds) query.shopId = { $in: shopIds };
+    if (tagIds) query["product.tagIds"] = { $in: tagIds };
+  
+    if (searchQuery) {
+      query.$text = {
+        $search: _.escapeRegExp(seapmrchQuery)
+      };
+    }
+    console.log("filter query", query)
+    let result = await Catalog.find(query).toArray()
+    console.log("result ->>>>>>>", result)
+    return Catalog.find(query);
+  } else {
+    // if we dont send any filter option
+    console.log("queries without flag", catalogBooleanFilters)
+    console.log("if flaq is not sent")
+    let query = {
+      "product.isDeleted": { $ne: true },
+      ...catalogBooleanFilters,
+      "product.isVisible": true,
+    };
+  
+    if (shopIds) query.shopId = { $in: shopIds };
+    if (tagIds) query["product.tagIds"] = { $in: tagIds };
+  
+    if (searchQuery) {
+      query.$text = {
+        $search: _.escapeRegExp(seapmrchQuery)
+      };
+    }
+    console.log("filter query", query)
+    let result = await Catalog.find(query).sort({"product.upVotes": -1}).toArray()
+    console.log("result ->>>>>>>", result)
+    return Catalog.find(query)
   }
-
-  return Catalog.find(query);
 }

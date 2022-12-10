@@ -264,7 +264,7 @@ interface CatalogItem {
 
   "Shop that owns the item"
   shop: Shop!
-
+  upVotes: Int!
   "Date and time at which the item was last updated"
   updatedAt: DateTime
 }
@@ -274,6 +274,8 @@ type CatalogItemProduct implements CatalogItem & Node {
   "The CatalogItemProduct ID"
   _id: ID!
 
+  "votes for product"
+  upVotes: Int!
   "The date and time at which this CatalogItem was first created, which is when the related product was first published"
   createdAt: DateTime!
 
@@ -295,6 +297,8 @@ type CatalogItemContent implements CatalogItem & Node {
   "The date and time at which this CatalogItem was first created"
   createdAt: DateTime!
 
+  "votes for porduct"
+  upVotes: Int!
   "The shop to which this catalog belongs"
   shop: Shop!
 
@@ -343,7 +347,8 @@ type Catalog implements Node {
 
   "The date and time at which this Catalog was first created"
   createdAt: DateTime!
-
+  "votes for product"
+  upVotes: Int!
   "The shop to which this catalog belongs"
   shop: Shop!
 
@@ -355,6 +360,9 @@ type Catalog implements Node {
 enum CatalogItemSortByField {
   "Sort by item ID"
   _id
+
+  "sort by votes"
+  upVotes
 
   "Sort by date and time at which the item was created"
   createdAt
@@ -413,7 +421,7 @@ extend type Query {
   catalogItems(
     "Provide a list of shop IDs from which you want to get catalog items"
     shopIds: [ID]!
-
+    flag: String
     "Optionally provide a list of tag IDs to further filter the item list"
     tagIds: [ID],
 

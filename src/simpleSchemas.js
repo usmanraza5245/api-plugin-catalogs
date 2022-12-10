@@ -547,6 +547,9 @@ export const Catalog = new SimpleSchema({
     type: Date,
     label: "Date/time this catalog item was created at"
   },
+  upVotes: {
+    type: Number
+  },
   shopId: {
     type: String,
     label: "Product ShopId"

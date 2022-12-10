@@ -21,11 +21,11 @@ import xformCatalogBooleanFilters from "../../utils/catalogBooleanFilters.js";
  * @returns {Promise<Object>} A CatalogItemConnection object
  */
 export default async function catalogItems(_, args, context, info) {
-  const { shopIds: opaqueShopIds, tagIds: opaqueTagIds, booleanFilters, searchQuery, ...connectionArgs } = args;
+  const { shopIds: opaqueShopIds, tagIds: opaqueTagIds, booleanFilters, flag, searchQuery, ...connectionArgs } = args;
 
   const shopIds = opaqueShopIds && opaqueShopIds.map(decodeShopOpaqueId);
   const tagIds = opaqueTagIds && opaqueTagIds.map(decodeTagOpaqueId);
-
+  console.log("connectionArgs.sortBy", connectionArgs.sortBy)
   let catalogBooleanFilters = {};
   if (Array.isArray(booleanFilters) && booleanFilters.length) {
     catalogBooleanFilters = await xformCatalogBooleanFilters(context, booleanFilters);
@@ -73,9 +73,10 @@ export default async function catalogItems(_, args, context, info) {
     catalogBooleanFilters,
     searchQuery,
     shopIds,
+    flag,
     tagIds
   });
-
+  console.log("queries->>>>>>", query, connectionArgs)
   return getPaginatedResponse(query, connectionArgs, {
     includeHasNextPage: wasFieldRequested("pageInfo.hasNextPage", info),
     includeHasPreviousPage: wasFieldRequested("pageInfo.hasPreviousPage", info),

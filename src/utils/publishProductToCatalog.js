@@ -32,7 +32,8 @@ export default async function publishProductToCatalog(product, context) {
     $set: {
       product: catalogProduct,
       shopId: catalogProduct.shopId,
-      updatedAt: new Date()
+      updatedAt: new Date(),
+      upVotes: catalogProduct.upVotes
     },
     $setOnInsert: {
       _id: Random.id(),
