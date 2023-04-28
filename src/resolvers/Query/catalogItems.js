@@ -21,22 +21,38 @@ import xformCatalogBooleanFilters from "../../utils/catalogBooleanFilters.js";
  * @returns {Promise<Object>} A CatalogItemConnection object
  */
 export default async function catalogItems(_, args, context, info) {
-  const { shopIds: opaqueShopIds, tagIds: opaqueTagIds, booleanFilters, flag, searchQuery, ...connectionArgs } = args;
+  const {
+    shopIds: opaqueShopIds,
+    tagIds: opaqueTagIds,
+    booleanFilters,
+    flag,
+    searchQuery,
+    ...connectionArgs
+  } = args;
 
   const shopIds = opaqueShopIds && opaqueShopIds.map(decodeShopOpaqueId);
   const tagIds = opaqueTagIds && opaqueTagIds.map(decodeTagOpaqueId);
-  console.log("connectionArgs.sortBy", connectionArgs.sortBy)
+  console.log("connectionArgs.sortBy", connectionArgs.sortBy);
   let catalogBooleanFilters = {};
   if (Array.isArray(booleanFilters) && booleanFilters.length) {
-    catalogBooleanFilters = await xformCatalogBooleanFilters(context, booleanFilters);
+    catalogBooleanFilters = await xformCatalogBooleanFilters(
+      context,
+      booleanFilters
+    );
   }
 
   if (connectionArgs.sortBy === "featured") {
     if (!tagIds || tagIds.length === 0) {
-      throw new ReactionError("not-found", "A tag ID is required for featured sort");
+      throw new ReactionError(
+        "not-found",
+        "A tag ID is required for featured sort"
+      );
     }
     if (tagIds.length > 1) {
-      throw new ReactionError("invalid-parameter", "Multiple tags cannot be sorted by featured. Only the first tag will be returned.");
+      throw new ReactionError(
+        "invalid-parameter",
+        "Multiple tags cannot be sorted by featured. Only the first tag will be returned."
+      );
     }
     const tagId = tagIds[0];
     return context.queries.catalogItemsAggregate(context, {
@@ -44,7 +60,7 @@ export default async function catalogItems(_, args, context, info) {
       connectionArgs,
       searchQuery,
       shopIds,
-      tagId
+      tagId,
     });
   }
 
@@ -55,15 +71,22 @@ export default async function catalogItems(_, args, context, info) {
 
     // Allow external pricing plugins to handle this if registered. We'll use the
     // first value returned that is a string.
-    for (const func of context.getFunctionsOfType("getMinPriceSortByFieldPath")) {
+    for (const func of context.getFunctionsOfType(
+      "getMinPriceSortByFieldPath"
+    )) {
       realSortByField = await func(context, { connectionArgs }); // eslint-disable-line no-await-in-loop
       if (typeof realSortByField === "string") break;
     }
 
     if (!realSortByField) {
-      Logger.warn("An attempt to sort catalog items by minPrice was rejected. " +
-        "Verify that you have a pricing plugin installed and it registers a getMinPriceSortByFieldPath function.");
-      throw new ReactionError("invalid-parameter", "Sorting by minPrice is not supported");
+      Logger.warn(
+        "An attempt to sort catalog items by minPrice was rejected. " +
+          "Verify that you have a pricing plugin installed and it registers a getMinPriceSortByFieldPath function."
+      );
+      throw new ReactionError(
+        "invalid-parameter",
+        "Sorting by minPrice is not supported"
+      );
     }
 
     connectionArgs.sortBy = realSortByField;
@@ -74,12 +97,12 @@ export default async function catalogItems(_, args, context, info) {
     searchQuery,
     shopIds,
     flag,
-    tagIds
+    tagIds,
   });
-  console.log("queries->>>>>>", query, connectionArgs)
+  console.log("queries->>>>>>", connectionArgs);
   return getPaginatedResponse(query, connectionArgs, {
     includeHasNextPage: wasFieldRequested("pageInfo.hasNextPage", info),
     includeHasPreviousPage: wasFieldRequested("pageInfo.hasPreviousPage", info),
-    includeTotalCount: wasFieldRequested("totalCount", info)
+    includeTotalCount: wasFieldRequested("totalCount", info),
   });
 }

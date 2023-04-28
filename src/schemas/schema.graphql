@@ -162,6 +162,9 @@ type CatalogProduct implements CatalogProductOrVariant & Node {
   "Product title"
   title: String
 
+  "Product reference track"
+  referenceTrack: String
+
   "The date and time at which this CatalogProduct was last updated, which is when the related product was most recently published"
   updatedAt: DateTime!
 
@@ -423,31 +426,31 @@ extend type Query {
     shopIds: [ID]!
     flag: String
     "Optionally provide a list of tag IDs to further filter the item list"
-    tagIds: [ID],
+    tagIds: [ID]
 
     "Additional filters to apply"
-    booleanFilters: [CatalogBooleanFilter],
+    booleanFilters: [CatalogBooleanFilter]
 
     "Optional text search query"
-    searchQuery: String,
+    searchQuery: String
 
     "Return only results that come after this cursor. Use this with `first` to specify the number of results to return."
-    after: ConnectionCursor,
+    after: ConnectionCursor
 
     "Return only results that come before this cursor. Use this with `last` to specify the number of results to return."
-    before: ConnectionCursor,
+    before: ConnectionCursor
 
     "Return at most this many results. This parameter may be used with either `after` or `offset` parameters."
-    first: ConnectionLimitInt,
+    first: ConnectionLimitInt
 
     "Return at most this many results. This parameter may be used with the `before` parameter."
-    last: ConnectionLimitInt,
+    last: ConnectionLimitInt
 
     "Return only results that come after the Nth result. This parameter may be used with the `first` parameter."
-    offset: Int,
+    offset: Int
 
     "Return results sorted in this order"
-    sortOrder: SortOrder = desc,
+    sortOrder: SortOrder = desc
 
     "Provide a Currency code if sortBy is minPrice"
     sortByPriceCurrencyCode: String
@@ -471,25 +474,25 @@ extend type Query {
   "Gets an array of all vendors"
   vendors(
     "Optionally provide a list of shop IDs from which you want to get the vendors"
-    shopIds: [ID],
+    shopIds: [ID]
 
     "Optionally provide a list of tag IDs to further filter the vendors"
-    tagIds: [ID],
+    tagIds: [ID]
 
     "Return only results that come after this cursor. Use this with `first` to specify the number of results to return."
-    after: ConnectionCursor,
+    after: ConnectionCursor
 
     "Return only results that come before this cursor. Use this with `last` to specify the number of results to return."
-    before: ConnectionCursor,
+    before: ConnectionCursor
 
     "Return at most this many results. This parameter may be used with either `after` or `offset` parameters."
-    first: ConnectionLimitInt,
+    first: ConnectionLimitInt
 
     "Return at most this many results. This parameter may be used with the `before` parameter."
-    last: ConnectionLimitInt,
+    last: ConnectionLimitInt
 
     "Return only results that come after the Nth result. This parameter may be used with the `first` parameter."
-    offset: Int,
+    offset: Int
 
     "Return results sorted in this order"
     sortOrder: SortOrder = asc

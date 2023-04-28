@@ -52,7 +52,7 @@ export default async function catalogItems(
 
     if (searchQuery) {
       query.$text = {
-        $search: _.escapeRegExp(seapmrchQuery),
+        $search: _.escapeRegExp(searchQuery),
       };
     }
     console.log("filter query", query);
@@ -80,7 +80,7 @@ export default async function catalogItems(
 
     if (searchQuery) {
       query.$text = {
-        $search: _.escapeRegExp(seapmrchQuery),
+        $search: _.escapeRegExp(searchQuery),
       };
     }
     console.log("filter query", query);

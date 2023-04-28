@@ -33,7 +33,7 @@ export function xformVariant(variant, variantMedia) {
     // The _id prop could change whereas this should always point back to the source variant in Products collection
     variantId: variant._id,
     weight: variant.weight,
-    width: variant.width
+    width: variant.width,
   };
 }
 
@@ -47,7 +47,10 @@ export function xformVariant(variant, variantMedia) {
  */
 export async function xformProduct({ context, product, variants }) {
   const { collections } = context;
-  const catalogProductMedia = await getCatalogProductMedia(product._id, collections);
+  const catalogProductMedia = await getCatalogProductMedia(
+    product._id,
+    collections
+  );
   const primaryImage = catalogProductMedia[0] || null;
 
   const topVariants = [];
@@ -69,13 +72,17 @@ export async function xformProduct({ context, product, variants }) {
   const catalogProductVariants = topVariants
     // We want to explicitly map everything so that new properties added to variant are not published to a catalog unless we want them
     .map((variant) => {
-      const variantMedia = catalogProductMedia.filter((media) => media.variantId === variant._id);
+      const variantMedia = catalogProductMedia.filter(
+        (media) => media.variantId === variant._id
+      );
       const newVariant = xformVariant(variant, variantMedia);
 
       const variantOptions = options.get(variant._id);
       if (variantOptions) {
         newVariant.options = variantOptions.map((option) => {
-          const optionMedia = catalogProductMedia.filter((media) => media.variantId === option._id);
+          const optionMedia = catalogProductMedia.filter(
+            (media) => media.variantId === option._id
+          );
           return xformVariant(option, optionMedia);
         });
       }
@@ -89,6 +96,7 @@ export async function xformProduct({ context, product, variants }) {
     barcode: product.barcode,
     createdAt: product.createdAt || new Date(),
     description: product.description,
+    referenceTrack: product.referenceTrack,
     height: product.height,
     isDeleted: !!product.isDeleted,
     isVisible: !!product.isVisible,
@@ -110,7 +118,7 @@ export async function xformProduct({ context, product, variants }) {
       { service: "twitter", message: product.twitterMsg },
       { service: "facebook", message: product.facebookMsg },
       { service: "googleplus", message: product.googleplusMsg },
-      { service: "pinterest", message: product.pinterestMsg }
+      { service: "pinterest", message: product.pinterestMsg },
     ],
     supportedFulfillmentTypes: product.supportedFulfillmentTypes,
     tagIds: product.hashtags,
@@ -120,7 +128,7 @@ export async function xformProduct({ context, product, variants }) {
     variants: catalogProductVariants,
     vendor: product.vendor,
     weight: product.weight,
-    width: product.width
+    width: product.width,
   };
 }
 
@@ -148,7 +156,9 @@ export default async function createCatalogProduct(product, context) {
 
   const shop = await Shops.findOne({ _id: product.shopId });
   if (!shop) {
-    Logger.error(`Cannot publish to catalog: product's shop (ID ${product.shopId}) not found`);
+    Logger.error(
+      `Cannot publish to catalog: product's shop (ID ${product.shopId}) not found`
+    );
     return false;
   }
 
@@ -156,16 +166,25 @@ export default async function createCatalogProduct(product, context) {
   const variants = await Products.find({
     ancestors: product._id,
     isDeleted: { $ne: true },
-    isVisible: { $ne: false }
+    isVisible: { $ne: false },
   }).toArray();
 
-  const catalogProduct = await xformProduct({ context, product, shop, variants });
-
-  await context.mutations.applyCustomPublisherTransforms(context, catalogProduct, {
+  const catalogProduct = await xformProduct({
+    context,
     product,
     shop,
-    variants
+    variants,
   });
+
+  await context.mutations.applyCustomPublisherTransforms(
+    context,
+    catalogProduct,
+    {
+      product,
+      shop,
+      variants,
+    }
+  );
 
   return catalogProduct;
 }
