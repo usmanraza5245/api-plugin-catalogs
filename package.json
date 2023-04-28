@@ -1,7 +1,7 @@
 {
   "name": "@usmanraza5245/api-plugin-catalogs",
   "description": "Catalogs plugin for the Reaction API",
-  "version": "0.1.0-development",
+  "version": "0.1.1",
   "main": "index.js",
   "type": "module",
   "engines": {
